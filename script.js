@@ -243,6 +243,12 @@ function initializeApp() {
     audioContext.init();
     createAudioControls();
     
+    // 限定性・緊急性の初期化
+    urgencyManager.init();
+    
+    // 動的CTAの初期化
+    dynamicCTA.init();
+    
     // その他のボタンのイベントリスナー追加
     const finalCtaButton = document.getElementById('finalCtaButton');
     const shareTwitterBtn = document.getElementById('shareTwitterBtn');
@@ -697,6 +703,304 @@ function restartFortune() {
         detailItems.forEach(item => item.remove());
     }
 }
+
+// Exit Intent機能
+let exitIntentShown = false;
+let userEngagement = {
+    scrolled: false,
+    timeSpent: 0,
+    questionsAnswered: 0
+};
+
+// スクロール追跡
+window.addEventListener('scroll', () => {
+    const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    if (scrollPercent > 50) {
+        userEngagement.scrolled = true;
+    }
+});
+
+// 滞在時間追跡と動的CTA管理
+const startTime = Date.now();
+const dynamicCTA = {
+    ctaButtons: [],
+    currentPhase: 0,
+    phases: [
+        { threshold: 0, text: '🔮 今すぐ無料で霊視鑑定を受ける', className: 'cta-phase-1' },
+        { threshold: 30, text: '✨ あなたの運命を15秒で占う', className: 'cta-phase-2' },
+        { threshold: 60, text: '💫 続きを見て真実を知る', className: 'cta-phase-3' },
+        { threshold: 120, text: '🌟 最後のチャンス！運命を確認', className: 'cta-phase-4' }
+    ],
+    
+    init() {
+        // CTA ボタンを取得
+        this.ctaButtons = [
+            document.getElementById('startFortune'),
+            document.getElementById('finalCtaButton')
+        ].filter(btn => btn !== null);
+        
+        this.updateCTA();
+    },
+    
+    updateCTA() {
+        const timeSpent = userEngagement.timeSpent;
+        let newPhase = 0;
+        
+        // 現在の滞在時間に適した フェーズを決定
+        for (let i = this.phases.length - 1; i >= 0; i--) {
+            if (timeSpent >= this.phases[i].threshold) {
+                newPhase = i;
+                break;
+            }
+        }
+        
+        // フェーズが変わった場合のみ更新
+        if (newPhase !== this.currentPhase) {
+            this.currentPhase = newPhase;
+            const phase = this.phases[newPhase];
+            
+            this.ctaButtons.forEach(button => {
+                if (button) {
+                    button.textContent = phase.text;
+                    
+                    // 前のフェーズクラスを削除
+                    this.phases.forEach(p => button.classList.remove(p.className));
+                    
+                    // 新しいフェーズクラスを追加
+                    button.classList.add(phase.className);
+                    
+                    // フェーズ変更時のアニメーション
+                    button.style.animation = 'ctaPhaseChange 0.5s ease';
+                    setTimeout(() => {
+                        button.style.animation = '';
+                    }, 500);
+                }
+            });
+            
+            // フェーズ変更の効果音（30秒以降）
+            if (newPhase > 0) {
+                audioContext.playClick();
+            }
+        }
+    }
+};
+
+setInterval(() => {
+    userEngagement.timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    dynamicCTA.updateCTA();
+}, 1000);
+
+// マウス離脱検知（デスクトップ）
+document.addEventListener('mouseleave', (e) => {
+    if (e.clientY <= 0 && shouldShowExitIntent()) {
+        showExitIntentModal();
+    }
+});
+
+// バックボタン検知（モバイル）
+window.addEventListener('popstate', () => {
+    if (shouldShowExitIntent()) {
+        showExitIntentModal();
+        // 履歴を戻す
+        history.pushState(null, '', window.location.href);
+    }
+});
+
+// Exit Intentを表示すべきかの判定
+function shouldShowExitIntent() {
+    return !exitIntentShown && 
+           (userEngagement.scrolled || userEngagement.timeSpent > 30 || userEngagement.questionsAnswered > 0) &&
+           !fortuneSection.classList.contains('hidden'); // 占い中のみ
+}
+
+// Exit Intentモーダルの表示
+function showExitIntentModal() {
+    if (exitIntentShown) return;
+    exitIntentShown = true;
+    
+    const remaining = fortuneData.questions.length - userEngagement.questionsAnswered;
+    
+    const modal = document.createElement('div');
+    modal.className = 'exit-intent-modal';
+    modal.innerHTML = `
+        <div class="exit-intent-content">
+            <div class="exit-intent-icon">🔮</div>
+            <h3>ちょっと待って！</h3>
+            <p>あと<span class="highlight">${remaining}問</span>で<br>あなたの運命が分かります</p>
+            <div class="exit-progress">
+                <div class="exit-progress-bar">
+                    <div class="exit-progress-fill" style="width: ${(userEngagement.questionsAnswered / fortuneData.questions.length) * 100}%"></div>
+                </div>
+                <span class="exit-progress-text">${userEngagement.questionsAnswered}/${fortuneData.questions.length}問完了</span>
+            </div>
+            <button class="exit-continue-btn" onclick="continueFromExit()">続きを見る</button>
+            <button class="exit-close-btn" onclick="closeExitIntent()">閉じる</button>
+        </div>
+        <div class="exit-intent-overlay" onclick="closeExitIntent()"></div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 100);
+    
+    // 効果音
+    audioContext.playMagic();
+}
+
+// Exit Intentから続行
+function continueFromExit() {
+    closeExitIntent();
+    // 現在の質問にフォーカス
+    const questionContainer = document.getElementById('questionContainer');
+    if (questionContainer) {
+        questionContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// Exit Intentモーダルを閉じる
+function closeExitIntent() {
+    const modal = document.querySelector('.exit-intent-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// 限定性・緊急性の管理
+const urgencyManager = {
+    initialCount: 50, // 初期残枠数
+    currentCount: null,
+    countdownEndTime: null,
+    
+    init() {
+        this.initializeFromStorage();
+        this.updateUrgencyDisplay();
+        this.startCountdown();
+        this.startPeriodicDecrease();
+    },
+    
+    initializeFromStorage() {
+        const stored = localStorage.getItem('urgencyData');
+        if (stored) {
+            const data = JSON.parse(stored);
+            this.currentCount = data.count;
+            this.countdownEndTime = new Date(data.endTime);
+        } else {
+            // 新規訪問者の場合
+            this.currentCount = this.initialCount - Math.floor(Math.random() * 25); // 25-50の間
+            this.countdownEndTime = new Date();
+            this.countdownEndTime.setHours(23, 59, 59, 999); // 今日の23:59:59まで
+            this.saveToStorage();
+        }
+    },
+    
+    saveToStorage() {
+        const data = {
+            count: this.currentCount,
+            endTime: this.countdownEndTime.toISOString()
+        };
+        localStorage.setItem('urgencyData', JSON.stringify(data));
+    },
+    
+    updateUrgencyDisplay() {
+        const remainingCountEl = document.getElementById('remainingCount');
+        const remainingFillEl = document.getElementById('remainingFill');
+        const limitCountEl = document.getElementById('limitCount');
+        const urgencyDateEl = document.getElementById('urgencyDate');
+        
+        if (remainingCountEl) {
+            remainingCountEl.textContent = this.currentCount;
+        }
+        
+        if (remainingFillEl && limitCountEl) {
+            const percentage = (this.currentCount / parseInt(limitCountEl.textContent)) * 100;
+            remainingFillEl.style.width = `${Math.max(percentage, 5)}%`; // 最低5%は表示
+            
+            // 残り少なくなると色を変更
+            if (percentage < 30) {
+                remainingFillEl.style.background = 'linear-gradient(90deg, #ff4444, #ff6b6b)';
+            } else if (percentage < 50) {
+                remainingFillEl.style.background = 'linear-gradient(90deg, #ffb300, #ffd700)';
+            }
+        }
+        
+        if (urgencyDateEl) {
+            const today = new Date();
+            urgencyDateEl.textContent = `${today.getMonth() + 1}/${today.getDate()}`;
+        }
+    },
+    
+    startCountdown() {
+        const updateTimer = () => {
+            const now = new Date();
+            const diff = this.countdownEndTime - now;
+            
+            if (diff <= 0) {
+                // 翌日にリセット
+                this.countdownEndTime = new Date();
+                this.countdownEndTime.setDate(this.countdownEndTime.getDate() + 1);
+                this.countdownEndTime.setHours(23, 59, 59, 999);
+                this.currentCount = this.initialCount - Math.floor(Math.random() * 25);
+                this.saveToStorage();
+                this.updateUrgencyDisplay();
+                return;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            const timerEl = document.getElementById('countdownTimer');
+            if (timerEl) {
+                timerEl.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        };
+        
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    },
+    
+    startPeriodicDecrease() {
+        // 5-15分ごとにランダムで残枠を1減らす
+        const decreaseInterval = () => {
+            const delay = (5 + Math.random() * 10) * 60 * 1000; // 5-15分
+            setTimeout(() => {
+                if (this.currentCount > 1) {
+                    this.currentCount--;
+                    this.saveToStorage();
+                    this.updateUrgencyDisplay();
+                    this.showDecreaseNotification();
+                }
+                decreaseInterval(); // 次の減少をスケジュール
+            }, delay);
+        };
+        
+        decreaseInterval();
+    },
+    
+    showDecreaseNotification() {
+        // 残枠減少時の小さな通知
+        const notification = document.createElement('div');
+        notification.className = 'urgency-notification';
+        notification.innerHTML = `
+            <span>🔥 残り${this.currentCount}名になりました</span>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.classList.add('show'), 100);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+};
+
+// 質問回答時にエンゲージメント更新
+const originalSelectAnswer = selectAnswer;
+selectAnswer = function(answerValue) {
+    userEngagement.questionsAnswered = currentQuestionIndex + 1;
+    originalSelectAnswer(answerValue);
+};
 
 // ページアンロード時のクリーンアップ
 window.addEventListener('beforeunload', () => {

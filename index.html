@@ -133,8 +133,16 @@
                         <li>✅ 毎週のスピリチュアルメッセージ</li>
                     </ul>
                     <div class="urgency">
-                        <p>⚠️ 毎月先着100名様限定</p>
-                        <p>残り<span class="remaining-count">23</span>名</p>
+                        <p>⚠️ <span id="urgencyDate">今日</span>先着<span id="limitCount">100</span>名様限定</p>
+                        <div class="remaining-progress">
+                            <div class="remaining-bar">
+                                <div id="remainingFill" class="remaining-fill"></div>
+                            </div>
+                            <p>残り<span id="remainingCount" class="remaining-count">23</span>名</p>
+                        </div>
+                        <div class="urgency-timer">
+                            <span id="countdownTimer">23:59:45</span>で締切
+                        </div>
                     </div>
                     <button id="lineRegister" class="line-button">
                         今すぐLINE登録して個別鑑定を受け取る
