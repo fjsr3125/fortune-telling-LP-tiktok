@@ -1,0 +1,6 @@
+# HTTPS enforcement
+http://reishi-hallelujah.pages.dev/* https://reishi-hallelujah.pages.dev/:splat 301!
+http://www.reishi-hallelujah.pages.dev/* https://reishi-hallelujah.pages.dev/:splat 301!
+
+# Fallback for SPA behavior
+/*    /index.html   200
