@@ -1,0 +1,36 @@
+# MCP O3 Server (contains API keys)
+mcp-o3-server/
+
+# Environment files
+.env
+.env.*
+*.env
+
+# API Keys and secrets
+**/openai_key.txt
+**/*api*key*
+
+# Node modules (if any other Node.js projects are added)
+node_modules/
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
