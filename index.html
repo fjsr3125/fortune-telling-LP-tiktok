@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>霊視鑑定士｜ハレルヤ - 魂の声を聞く本格霊視鑑定</title>
+    <meta name="description" content="霊視鑑定士ハレルヤがあなたの魂の声を聞きます。恋愛・仕事・人生の悩みを本格霊視で解決。今すぐ無料鑑定を体験してください。">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ファーストビュー -->
+    <section id="hero" class="hero">
+        <div class="stars"></div>
+        <div class="hero-content">
+            <div class="fortune-teller-intro">
+                <img src="https://via.placeholder.com/150x150?text=ハレルヤ" alt="霊視鑑定士ハレルヤ" class="fortune-teller-image">
+                <h1 class="hero-title">
+                    <span class="mystical">✨ 霊視鑑定士｜ハレルヤ ✨</span>
+                    <span class="main-title">魂の声を聞く<br>本格霊視鑑定</span>
+                </h1>
+            </div>
+            <p class="hero-subtitle">20年の経験を持つ霊視鑑定士が、あなたの魂の奥底にある真実を見抜きます</p>
+            <div class="hero-features">
+                <div class="feature">💫 恋愛・復縁の未来</div>
+                <div class="feature">🌟 仕事・転職の運勢</div>
+                <div class="feature">🔮 人生の重要な決断</div>
+            </div>
+            <button id="startFortune" class="cta-button">
+                🔮 今すぐ無料で霊視鑑定を受ける
+            </button>
+            <p class="guarantee">完全無料・個人情報不要</p>
+        </div>
+    </section>
+
+    <!-- 信頼性セクション -->
+    <section class="credibility-section">
+        <div class="container">
+            <h2 class="section-title">なぜハレルヤの霊視は的中するのか？</h2>
+            <div class="credibility-grid">
+                <div class="cred-item">
+                    <div class="cred-icon">👁️</div>
+                    <h3>生まれ持った霊視能力</h3>
+                    <p>幼少期から霊的な存在を感じ取ることができ、20年間で10,000人以上の人生を導いてきました</p>
+                </div>
+                <div class="cred-item">
+                    <div class="cred-icon">🎯</div>
+                    <h3>鑑定件数4000件以上</h3>
+                    <p>恋愛成就、転職成功、人間関係の改善など、数多くの成功事例があります</p>
+                </div>
+                <div class="cred-item">
+                    <div class="cred-icon">💫</div>
+                    <h3>魂レベルでの鑑定</h3>
+                    <p>表面的な悩みではなく、魂の奥底にある本当の願いを読み取ります</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- お客様の声セクション -->
+    <section class="testimonials-section">
+        <div class="container">
+            <h2 class="section-title">実際に人生が変わった方々の声</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial">
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                    <p>「復縁を諦めていましたが、ハレルヤさんに『3ヶ月後に彼から連絡が来る』と言われ、本当にその通りになりました！今では結婚を前提にお付き合いしています」</p>
+                    <div class="testimonial-author">30代女性 / 恋愛相談</div>
+                </div>
+                <div class="testimonial">
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                    <p>「転職で迷っていた時、『今の会社で昇進のチャンスが来る』と鑑定していただきました。半年後、本当に部長に昇進！年収も200万円アップしました」</p>
+                    <div class="testimonial-author">40代男性 / 仕事相談</div>
+                </div>
+                <div class="testimonial">
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                    <p>「人間関係で悩んでいましたが、具体的なアドバイスをいただき、職場の環境が劇的に改善。毎日が楽しくなりました」</p>
+                    <div class="testimonial-author">20代女性 / 人間関係</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 霊視体験セクション -->
+    <section id="fortune" class="fortune-section hidden">
+        <div class="container">
+            <h2 class="section-title">ハレルヤの霊視鑑定を体験</h2>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <p class="progress-text">質問 <span id="currentQuestion">1</span> / <span id="totalQuestions">7</span></p>
+            </div>
+
+            <div id="questionContainer" class="question-container">
+                <h2 id="questionTitle" class="question-title"></h2>
+                <div id="answersContainer" class="answers-container"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 結果表示セクション -->
+    <section id="result" class="result-section hidden">
+        <div class="container">
+            <div class="result-content">
+                <h2 class="result-title">🌟 あなたの占い結果 🌟</h2>
+                <div id="fortuneResult" class="fortune-result">
+                    <div class="result-card">
+                        <h3 id="resultType" class="result-type"></h3>
+                        <p id="resultDescription" class="result-description"></p>
+                        <div class="lucky-items">
+                            <div class="lucky-item">
+                                <span class="lucky-label">ラッキーカラー:</span>
+                                <span id="luckyColor" class="lucky-value"></span>
+                            </div>
+                            <div class="lucky-item">
+                                <span class="lucky-label">ラッキーナンバー:</span>
+                                <span id="luckyNumber" class="lucky-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="line-promotion">
+                    <h3 class="line-title">📱 ハレルヤの個別霊視鑑定をLINEで受け取りませんか？</h3>
+                    <div class="line-special-offer">
+                        <div class="offer-badge">期間限定</div>
+                        <h4>LINE登録者限定特典</h4>
+                    </div>
+                    <ul class="line-benefits">
+                        <li>✅ あなただけの詳細霊視レポート（通常5,000円）</li>
+                        <li>✅ 今後3ヶ月間の運勢カレンダー</li>
+                        <li>✅ 恋愛・仕事・金運の具体的アドバイス</li>
+                        <li>✅ 毎週のスピリチュアルメッセージ</li>
+                        <li>✅ 緊急時の個別相談（月1回まで無料）</li>
+                    </ul>
+                    <div class="urgency">
+                        <p>⚠️ 毎月先着100名様限定</p>
+                        <p>残り<span class="remaining-count">23</span>名</p>
+                    </div>
+                    <button id="lineRegister" class="line-button">
+                        今すぐLINE登録して個別鑑定を受け取る
+                    </button>
+                    <p class="line-guarantee">※完全無料・いつでも解除できます</p>
+                </div>
+
+                <div class="share-section">
+                    <h4>結果をシェアしよう</h4>
+                    <div class="share-buttons">
+                        <button class="share-btn twitter" onclick="shareTwitter()">Twitter</button>
+                        <button class="share-btn restart" onclick="restartFortune()">もう一度占う</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQセクション -->
+    <section class="faq-section">
+        <div class="container">
+            <h2 class="section-title">よくあるご質問</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">本当に無料で鑑定してもらえますか？</div>
+                    <div class="faq-answer">はい、体験鑑定は完全無料です。LINE登録後の詳細鑑定も無料特典として提供しています。</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">個人情報は安全ですか？</div>
+                    <div class="faq-answer">お客様の個人情報は厳重に管理し、鑑定以外の目的では一切使用いたしません。</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">どのような相談ができますか？</div>
+                    <div class="faq-answer">恋愛・復縁・結婚・仕事・転職・人間関係・金運・健康など、人生のあらゆる悩みにお答えします。</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">鑑定結果はいつ届きますか？</div>
+                    <div class="faq-answer">LINE登録後、24時間以内に詳細な鑑定結果をお送りします。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 最終CTAセクション -->
+    <section class="final-cta-section">
+        <div class="container">
+            <h2 class="final-cta-title">あなたの人生を変える<br>霊視鑑定を今すぐ体験</h2>
+            <div class="final-cta-benefits">
+                <div class="benefit">🔮 完全無料の霊視体験</div>
+                <div class="benefit">💫 鑑定件数4000件以上</div>
+                <div class="benefit">✨ 24時間以内の詳細レポート</div>
+            </div>
+            <button class="final-cta-button" onclick="document.getElementById('startFortune').click()">
+                今すぐ無料で霊視鑑定を始める
+            </button>
+            <p class="final-guarantee">※個人情報不要・完全無料</p>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <h3>霊視鑑定士｜ハレルヤ</h3>
+                <p>魂の声を聞き、あなたの人生を導く</p>
+                <div class="footer-links">
+                    <a href="#privacy">プライバシーポリシー</a>
+                    <a href="#terms">特定商取引法</a>
+                    <a href="#about">鑑定士について</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
