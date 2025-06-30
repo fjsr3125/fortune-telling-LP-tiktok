@@ -1,3 +1,6 @@
+(function() {
+    'use strict';
+
 // 占い体験のデータと設定
 const fortuneData = {
     questions: [
@@ -123,65 +126,82 @@ let fortuneResult = null;
 
 // 音響効果管理
 const audioContext = {
+    audioCtx: null,
     bgm: null,
     clickSound: null,
     magicSound: null,
     isEnabled: false,
     
     init() {
-        // Web Audio APIを使用した効果音の作成
-        this.createSounds();
+        // シングルトンパターンでAudioContextを初期化
+        try {
+            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            this.createSounds();
+        } catch (error) {
+            console.warn('Audio context initialization failed:', error);
+        }
     },
     
     createSounds() {
-        // クリック音を生成（ベル音）
-        this.clickSound = this.createTone(800, 0.1, 'sine');
-        // 魔法音を生成（キラキラ音）
-        this.magicSound = this.createTone(1200, 0.3, 'sine');
+        if (!this.audioCtx) return;
+        
+        // 事前に音源設定を準備（実際の音再生は playTone で行う）
+        this.clickSound = { frequency: 800, duration: 0.1, type: 'sine' };
+        this.magicSound = { frequency: 1200, duration: 0.3, type: 'sine' };
     },
     
-    createTone(frequency, duration, type = 'sine') {
-        return () => {
-            if (!this.isEnabled) return;
-            
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                oscillator.frequency.value = frequency;
-                oscillator.type = type;
-                
-                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-                
-                oscillator.start(audioCtx.currentTime);
-                oscillator.stop(audioCtx.currentTime + duration);
-                
-                // メモリリークを防ぐ
-                setTimeout(() => {
-                    audioCtx.close();
-                }, duration * 1000 + 100);
-            } catch (error) {
-                console.warn('Audio context error:', error);
+    playTone(frequency, duration, type = 'sine') {
+        if (!this.isEnabled || !this.audioCtx) return;
+        
+        try {
+            // AudioContextの状態を確認し、必要に応じて再開
+            if (this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
             }
-        };
+            
+            const oscillator = this.audioCtx.createOscillator();
+            const gainNode = this.audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioCtx.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, this.audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + duration);
+            
+            oscillator.start(this.audioCtx.currentTime);
+            oscillator.stop(this.audioCtx.currentTime + duration);
+            
+        } catch (error) {
+            console.warn('Audio playback error:', error);
+        }
     },
     
     playClick() {
-        if (this.clickSound) this.clickSound();
+        if (this.clickSound) {
+            this.playTone(this.clickSound.frequency, this.clickSound.duration, this.clickSound.type);
+        }
     },
     
     playMagic() {
-        if (this.magicSound) this.magicSound();
+        if (this.magicSound) {
+            this.playTone(this.magicSound.frequency, this.magicSound.duration, this.magicSound.type);
+        }
     },
     
     toggle() {
         this.isEnabled = !this.isEnabled;
         return this.isEnabled;
+    },
+    
+    destroy() {
+        // クリーンアップ用メソッド
+        if (this.audioCtx) {
+            this.audioCtx.close();
+            this.audioCtx = null;
+        }
     }
 };
 
@@ -223,10 +243,58 @@ function initializeApp() {
     audioContext.init();
     createAudioControls();
     
-    // 最終CTAボタンのイベントリスナーも追加
-    const finalCtaButton = document.querySelector('.final-cta-button');
+    // その他のボタンのイベントリスナー追加
+    const finalCtaButton = document.getElementById('finalCtaButton');
+    const shareTwitterBtn = document.getElementById('shareTwitterBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    
     if (finalCtaButton) {
         finalCtaButton.addEventListener('click', startFortune);
+    }
+    
+    if (shareTwitterBtn) {
+        shareTwitterBtn.addEventListener('click', shareTwitter);
+    }
+    
+    if (restartBtn) {
+        restartBtn.addEventListener('click', restartFortune);
+    }
+    
+    // FAQのアコーディオン機能を追加
+    initializeFAQ();
+}
+
+// FAQアコーディオンの初期化
+function initializeFAQ() {
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', toggleFAQ);
+        question.addEventListener('keydown', handleFAQKeydown);
+    });
+}
+
+// FAQの開閉切り替え
+function toggleFAQ(event) {
+    const question = event.target;
+    const answerId = question.getAttribute('aria-controls');
+    const answer = document.getElementById(answerId);
+    const isExpanded = question.getAttribute('aria-expanded') === 'true';
+    
+    // 状態を切り替え
+    question.setAttribute('aria-expanded', !isExpanded);
+    answer.setAttribute('aria-hidden', isExpanded);
+    
+    // CSSクラスでスタイル制御
+    question.classList.toggle('expanded', !isExpanded);
+    answer.classList.toggle('visible', !isExpanded);
+}
+
+// FAQのキーボード操作対応
+function handleFAQKeydown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleFAQ(event);
     }
 }
 
@@ -324,6 +392,13 @@ function showQuestion() {
     if (progressFill) {
         progressFill.style.width = progress + '%';
     }
+    
+    // プログレスバーのaria-valuenow属性を更新
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+        progressBar.setAttribute('aria-valuenow', progress);
+    }
+    
     if (currentQuestionSpan) {
         currentQuestionSpan.textContent = currentQuestionIndex + 1;
     }
@@ -339,7 +414,15 @@ function showQuestion() {
             const answerButton = document.createElement('button');
             answerButton.className = 'answer-button';
             answerButton.textContent = answer.text;
+            answerButton.setAttribute('role', 'radio');
+            answerButton.setAttribute('aria-checked', 'false');
+            answerButton.setAttribute('tabindex', index === 0 ? '0' : '-1');
             answerButton.addEventListener('click', () => selectAnswer(answer.value));
+            
+            // キーボード操作対応
+            answerButton.addEventListener('keydown', (e) => {
+                handleAnswerKeydown(e, index);
+            });
             
             // タッチジェスチャーの追加
             answerButton.addEventListener('touchstart', (e) => {
@@ -356,6 +439,36 @@ function showQuestion() {
             
             answersContainer.appendChild(answerButton);
         });
+    }
+}
+
+// 回答ボタンのキーボード操作
+function handleAnswerKeydown(event, currentIndex) {
+    const buttons = document.querySelectorAll('.answer-button');
+    let newIndex = currentIndex;
+    
+    switch(event.key) {
+        case 'ArrowDown':
+        case 'ArrowRight':
+            event.preventDefault();
+            newIndex = (currentIndex + 1) % buttons.length;
+            break;
+        case 'ArrowUp':
+        case 'ArrowLeft':
+            event.preventDefault();
+            newIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+            break;
+        case 'Enter':
+        case ' ':
+            event.preventDefault();
+            event.target.click();
+            return;
+    }
+    
+    if (newIndex !== currentIndex) {
+        buttons[currentIndex].setAttribute('tabindex', '-1');
+        buttons[newIndex].setAttribute('tabindex', '0');
+        buttons[newIndex].focus();
     }
 }
 
@@ -584,3 +697,12 @@ function restartFortune() {
         detailItems.forEach(item => item.remove());
     }
 }
+
+// ページアンロード時のクリーンアップ
+window.addEventListener('beforeunload', () => {
+    if (audioContext && audioContext.destroy) {
+        audioContext.destroy();
+    }
+});
+
+})(); // IIFE終了

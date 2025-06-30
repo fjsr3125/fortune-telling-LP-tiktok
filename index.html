@@ -14,7 +14,7 @@
         <div class="stars"></div>
         <div class="hero-content">
             <div class="fortune-teller-intro">
-                <img src="https://via.placeholder.com/150x150?text=ハレルヤ" alt="霊視鑑定士ハレルヤ" class="fortune-teller-image">
+                <img src="https://via.placeholder.com/150x150?text=ハレルヤ" alt="霊視鑑定士ハレルヤ" class="fortune-teller-image" loading="lazy">
                 <h1 class="hero-title">
                     <span class="mystical">✨ 霊視鑑定士｜ハレルヤ ✨</span>
                     <span class="main-title">魂の声を聞く<br>本格霊視鑑定</span>
@@ -82,19 +82,19 @@
     </section>
 
     <!-- 霊視体験セクション -->
-    <section id="fortune" class="fortune-section hidden">
+    <section id="fortune" class="fortune-section hidden" role="main" aria-label="霊視鑑定体験">
         <div class="container">
             <h2 class="section-title">ハレルヤの霊視鑑定を体験</h2>
             <div class="progress-container">
-                <div class="progress-bar">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="質問進捗">
                     <div id="progressFill" class="progress-fill"></div>
                 </div>
-                <p class="progress-text">質問 <span id="currentQuestion">1</span> / <span id="totalQuestions">7</span></p>
+                <p class="progress-text" aria-live="polite">質問 <span id="currentQuestion">1</span> / <span id="totalQuestions">7</span></p>
             </div>
 
-            <div id="questionContainer" class="question-container">
+            <div id="questionContainer" class="question-container" aria-live="polite">
                 <h2 id="questionTitle" class="question-title"></h2>
-                <div id="answersContainer" class="answers-container"></div>
+                <div id="answersContainer" class="answers-container" role="radiogroup"></div>
             </div>
         </div>
     </section>
@@ -147,8 +147,8 @@
                 <div class="share-section">
                     <h4>結果をシェアしよう</h4>
                     <div class="share-buttons">
-                        <button class="share-btn twitter" onclick="shareTwitter()">Twitter</button>
-                        <button class="share-btn restart" onclick="restartFortune()">もう一度占う</button>
+                        <button class="share-btn twitter" id="shareTwitterBtn">Twitter</button>
+                        <button class="share-btn restart" id="restartBtn">もう一度占う</button>
                     </div>
                 </div>
             </div>
@@ -161,20 +161,20 @@
             <h2 class="section-title">よくあるご質問</h2>
             <div class="faq-list">
                 <div class="faq-item">
-                    <div class="faq-question">本当に無料で鑑定してもらえますか？</div>
-                    <div class="faq-answer">はい、体験鑑定は完全無料です。LINE登録後の詳細鑑定も無料特典として提供しています。</div>
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">本当に無料で鑑定してもらえますか？</button>
+                    <div id="faq-answer-1" class="faq-answer" aria-hidden="true">はい、体験鑑定は完全無料です。LINE登録後の詳細鑑定も無料特典として提供しています。</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">個人情報は安全ですか？</div>
-                    <div class="faq-answer">お客様の個人情報は厳重に管理し、鑑定以外の目的では一切使用いたしません。</div>
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">個人情報は安全ですか？</button>
+                    <div id="faq-answer-2" class="faq-answer" aria-hidden="true">お客様の個人情報は厳重に管理し、鑑定以外の目的では一切使用いたしません。</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">どのような相談ができますか？</div>
-                    <div class="faq-answer">恋愛・復縁・結婚・仕事・転職・人間関係・金運・健康など、人生のあらゆる悩みにお答えします。</div>
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">どのような相談ができますか？</button>
+                    <div id="faq-answer-3" class="faq-answer" aria-hidden="true">恋愛・復縁・結婚・仕事・転職・人間関係・金運・健康など、人生のあらゆる悩みにお答えします。</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">鑑定結果はいつ届きますか？</div>
-                    <div class="faq-answer">LINE登録後、24時間以内に詳細な鑑定結果をお送りします。</div>
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">鑑定結果はいつ届きますか？</button>
+                    <div id="faq-answer-4" class="faq-answer" aria-hidden="true">LINE登録後、24時間以内に詳細な鑑定結果をお送りします。</div>
                 </div>
             </div>
         </div>
@@ -189,7 +189,7 @@
                 <div class="benefit">💫 鑑定件数4000件以上</div>
                 <div class="benefit">✨ 24時間以内の詳細レポート</div>
             </div>
-            <button class="final-cta-button" onclick="document.getElementById('startFortune').click()">
+            <button class="final-cta-button" id="finalCtaButton">
                 今すぐ無料で霊視鑑定を始める
             </button>
             <p class="final-guarantee">※個人情報不要・完全無料</p>

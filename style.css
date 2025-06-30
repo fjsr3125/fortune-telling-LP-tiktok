@@ -719,9 +719,21 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: background 0.3s ease;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-size: inherit;
+    font-family: inherit;
 }
 
-.faq-question:hover {
+.faq-question:hover,
+.faq-question:focus {
+    background: rgba(255,215,0,0.2);
+    outline: 2px solid #ffd700;
+    outline-offset: 2px;
+}
+
+.faq-question.expanded {
     background: rgba(255,215,0,0.2);
 }
 
@@ -730,6 +742,16 @@ body {
     color: #fff;
     line-height: 1.6;
     border-top: 1px solid rgba(255,255,255,0.1);
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.faq-answer.visible {
+    display: block;
+}
+
+.faq-answer[aria-hidden="false"] {
+    display: block;
 }
 
 /* 最終CTAセクション */
